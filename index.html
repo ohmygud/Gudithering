@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#12080f" />
+<meta name="description" content="GUDithering by ohmygud.com — browser-based dithering, limited-palette and distressed-print image editor." />
+<title>GUDithering by ohmygud.com</title>
+<style>
+ :root{
+  --bg:#12080f;
+  --bg2:#1d0c18;
+  --panel:#21101c;
+  --panel2:#301321;
+  --ink:#f6d6df;
+  --muted:#b78698;
+  --acid:#d94f83;
+  --hot:#ff76a7;
+  --dark:#090508;
+  --line:#6f2947;
+  --line2:#a63a67;
+  --paper:#2a111f;
+  --cream:#ead9c7;
+  --cherry:#8f1e4c;
+  --butter:#c7a65a;
+  --shadow:rgba(0,0,0,.48);
+  --radius:10px;
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;min-height:100vh;background:
+radial-gradient(circle at 12px 12px,rgba(255,118,167,.07) 1px,transparent 1.4px) 0 0/22px 22px,
+linear-gradient(135deg,#090508,var(--bg) 48%,#260d1d);color:var(--ink);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace}
+button,input,select{font:inherit}
+button,select,input[type=file]{border-radius:7px}
+header{position:sticky;top:0;z-index:20;display:flex;gap:18px;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:2px solid var(--line2);background:rgba(15,7,13,.94);backdrop-filter:blur(14px);box-shadow:0 8px 30px var(--shadow)}
+.brand{min-width:0}.brandTitle{font-family:Georgia,"Times New Roman",serif;font-size:clamp(22px,3vw,38px);font-weight:900;letter-spacing:-.025em;line-height:.95;color:#f1c9d7;text-shadow:2px 2px 0 #6e173d}
+.brandSub{margin-top:4px;font-size:11px;letter-spacing:.08em;color:var(--muted)}
+.headerTools{display:flex;gap:8px;align-items:center}.headerTools button{width:auto;white-space:nowrap}
+.app{display:grid;grid-template-columns:minmax(280px,340px) minmax(0,1fr) minmax(280px,340px);min-height:calc(100vh - 73px)}
+.sidebar{padding:12px;overflow:auto;background:linear-gradient(180deg,#170a13,#25101e 52%,#140910);border-color:var(--line2);border-style:solid;border-width:0 2px 0 0}
+.sidebar.right{border-width:0 0 0 1px}
+.stage{min-width:0;display:flex;flex-direction:column;gap:12px;padding:16px;background:
+linear-gradient(rgba(231,167,190,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(231,167,190,.055) 1px,transparent 1px),
+radial-gradient(circle at 50% 30%,#321222 0,#180a14 48%,#090508 100%);background-size:22px 22px,22px 22px,auto}
+.stageTop{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}.stageTop .small{font-size:11px;color:var(--muted)}
+.canvasArea{flex:1;min-height:52vh;display:grid;place-items:center;overflow:auto;padding:6px}
+.canvaswrap{position:relative;display:inline-block;max-width:100%;background:var(--paper);border:3px solid var(--line2);border-radius:12px;overflow:hidden;box-shadow:9px 9px 0 rgba(93,22,54,.45),0 22px 70px rgba(0,0,0,.55)}
+canvas{display:block;max-width:min(100%,1200px);height:auto;image-rendering:auto}
+.drop{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:32px;color:#f4cfda;background:radial-gradient(circle at 25% 20%,rgba(255,185,210,.08) 0 5%,transparent 5.5%),linear-gradient(135deg,#170a13,#341225 58%,#180811);font-family:Georgia,serif;font-size:clamp(18px,3vw,28px);font-weight:800;cursor:pointer}
+.drop em{display:block;margin-top:10px;font-family:ui-monospace,monospace;font-size:11px;font-weight:400;font-style:normal;letter-spacing:.08em}
+fieldset{border:2px solid var(--line);border-radius:var(--radius);margin:0 0 10px;padding:11px;background:rgba(42,17,31,.78);box-shadow:3px 3px 0 rgba(0,0,0,.26)}
+legend{padding:0 7px;color:var(--acid);font-size:11px;text-transform:uppercase;letter-spacing:.11em}
+label.control{display:grid;grid-template-columns:minmax(90px,1fr) minmax(110px,150px) 44px;gap:8px;align-items:center;font-size:11px;margin:9px 0;color:var(--ink)}
+select,button,input[type=file]{width:100%;background:#160a12;color:var(--ink);border:2px solid var(--line2);padding:9px;box-shadow:2px 2px 0 rgba(0,0,0,.25)}
+button{cursor:pointer;transition:.16s ease}button:hover{border-color:var(--acid);transform:translateY(-1px)}button:active{transform:translateY(0)}
+input[type=range]{width:100%;accent-color:var(--acid)}
+input[type=checkbox]{accent-color:var(--acid)}
+.row{display:flex;gap:7px}.row>*{flex:1}.stack{display:grid;gap:7px}
+.small{font-size:11px;color:var(--muted)}.value{color:var(--acid);text-align:right;font-variant-numeric:tabular-nums}
+.check{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:11px;padding:6px 0}
+.palettes{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:8px 0}.swatch{height:34px;min-width:0;border:1px solid var(--line2);padding:0;background:none;border-radius:6px;overflow:hidden}
+.paletteGroupTabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}.paletteGroupTabs button{padding:7px;font-size:10px}.paletteGroupTabs button.active{background:var(--acid);color:#fff0f5;border-color:#7f1d48;font-weight:900}
+.paletteGrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}.paletteCard{padding:7px;text-align:left;font-size:10px;min-height:60px}.paletteCard.active{outline:1px solid var(--acid);border-color:var(--acid)}.miniSwatches{display:flex;gap:2px;margin-top:7px}.miniSwatches i{display:block;flex:1;height:13px;border-radius:2px;border:1px solid rgba(255,255,255,.12)}
+.presetGrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}.preset{font-size:10px;padding:8px}.preset.active{outline:2px solid var(--cherry);border-color:var(--cherry);background:#351323}
+.primary{background:var(--acid);color:#fff0f5;border-color:#7f1d48;font-weight:900}.primary:hover{background:#ff76b3}.ghost{background:#160a12}
+.exportGrid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.exportGrid .wide{grid-column:1/-1}
+.status{min-height:16px;margin-top:8px;font-size:10px;color:var(--muted)}
+.mobileTabs{display:none;position:sticky;bottom:0;z-index:30;background:rgba(18,8,15,.97);border-top:2px solid var(--line2);grid-template-columns:repeat(3,1fr);padding:max(7px,env(safe-area-inset-bottom)) 8px 7px;gap:6px}.mobileTabs button{font-size:10px;padding:9px 5px}.mobileTabs button.active{background:var(--acid);color:var(--dark)}
+.tip{font-size:10px;line-height:1.45;color:var(--muted)}
+kbd{font:inherit;background:#160a12;border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:1px 4px;color:var(--cherry)}
+@media (max-width:1100px){.app{grid-template-columns:290px minmax(0,1fr)}.sidebar.right{grid-column:1/-1;border-width:1px 0 0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.sidebar.right fieldset{margin:0}.sidebar.right .exportField{grid-column:1/-1}}
+@media (max-width:760px){header{position:static;padding:12px}.brandTitle{font-size:29px}.brandSub{font-size:9px}.headerTools{display:none}.app{display:block;min-height:auto}.sidebar{display:none;border:0!important;padding:10px}.sidebar.mobile-show{display:block}.stage{padding:10px;min-height:calc(100vh - 118px)}.canvasArea{min-height:54vh}.mobileTabs{display:grid}.paletteGrid,.presetGrid{grid-template-columns:repeat(2,1fr)}label.control{grid-template-columns:1fr 130px 40px}.stageTop{font-size:10px}.sidebar.right{display:none}.sidebar.right.mobile-show{display:block}.canvaswrap{width:100%}canvas{width:100%;height:auto}}
+@media (max-width:430px){label.control{grid-template-columns:1fr 118px 36px;gap:5px}.paletteGroupTabs{grid-template-columns:1fr 1fr}.paletteGrid{grid-template-columns:1fr 1fr}.drop{padding:20px}.brandTitle{font-size:25px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="brandTitle">GUDithering</div><div class="brandSub">by ohmygud.com · dither / halftone / gothic-girlcore decay</div></div>
+  <div class="headerTools"><button id="headerOpen">Open image</button><button id="headerPng">PNG HD</button><button id="headerPdf" class="primary">PDF HD</button></div>
+</header>
+
+<div class="app">
+<aside id="leftPanel" class="sidebar left mobile-show">
+  <fieldset><legend>Image</legend>
+    <input id="file" type="file" accept="image/*" />
+    <div class="row" style="margin-top:8px"><button id="fit">Fit preview</button><button id="reset">Reset</button></div>
+  </fieldset>
+
+  <fieldset><legend>Thematic palette groups</legend>
+    <div id="paletteGroups" class="paletteGroupTabs"></div>
+    <div id="paletteGrid" class="paletteGrid"></div>
+  </fieldset>
+
+  <fieldset><legend>Current palette · max 5</legend>
+    <div class="palettes">
+      <input class="swatch" type="color" value="#171a14"><input class="swatch" type="color" value="#d8d0b3"><input class="swatch" type="color" value="#3e6f45"><input class="swatch" type="color" value="#c45c49"><input class="swatch" type="color" value="#b79b55">
+    </div>
+    <label class="control">Colors <input id="colorCount" type="range" min="2" max="5" step="1" value="5"><span id="colorCountV" class="value"></span></label>
+  </fieldset>
+
+  <fieldset><legend>Style presets</legend><div id="presets" class="presetGrid"></div></fieldset>
+</aside>
+
+<main id="stage" class="stage">
+  <div class="stageTop"><span class="small">Preview is optimized for speed. HD export is rendered from the source image.</span><span id="sourceInfo" class="small">No image</span></div>
+  <div class="canvasArea"><div class="canvaswrap"><canvas id="c" width="900" height="900"></canvas><div id="drop" class="drop"><div>DROP AN IMAGE HERE<em>or tap to select · JPG / PNG / WEBP</em></div></div></div></div>
+</main>
+
+<aside id="rightPanel" class="sidebar right">
+  <fieldset><legend>Dithering</legend>
+    <label class="control">Algorithm <select id="algo"><option value="floyd">Floyd–Steinberg</option><option value="atkinson">Atkinson</option><option value="bayer4">Bayer 4×4</option><option value="bayer8">Bayer 8×8</option><option value="threshold">Threshold</option></select><span></span></label>
+    <label class="control">Pixel size <input id="pixel" type="range" min="1" max="8" step="1" value="2"><span id="pixelV" class="value"></span></label>
+    <label class="control">Dither force <input id="strength" type="range" min="0" max="2" step="0.05" value="1"><span id="strengthV" class="value"></span></label>
+    <label class="control">Color bias <input id="bias" type="range" min="-80" max="80" step="1" value="0"><span id="biasV" class="value"></span></label>
+  </fieldset>
+
+  <fieldset><legend>Image treatment</legend>
+    <label class="control">Brightness <input id="bright" type="range" min="-100" max="100" value="0"><span id="brightV" class="value"></span></label>
+    <label class="control">Contrast <input id="contrast" type="range" min="-100" max="100" value="18"><span id="contrastV" class="value"></span></label>
+    <label class="control">Saturation <input id="sat" type="range" min="0" max="200" value="78"><span id="satV" class="value"></span></label>
+    <label class="control">Grain <input id="grain" type="range" min="0" max="80" value="18"><span id="grainV" class="value"></span></label>
+    <label class="control">Fade / paper <input id="fade" type="range" min="0" max="60" value="12"><span id="fadeV" class="value"></span></label>
+    <div class="check"><span>Horizontal scan</span><input id="scan" type="checkbox" checked></div>
+    <div class="check"><span>Edge distress</span><input id="distress" type="checkbox" checked></div>
+  </fieldset>
+
+  <fieldset><legend>Mutation</legend><button id="random" class="ghost">Mutate parameters</button></fieldset>
+
+  <fieldset class="exportField"><legend>HD export</legend>
+    <label class="control">Resolution <select id="exportScale"><option value="1">Original · 1×</option><option value="2">HD · 2×</option><option value="3">Ultra · 3×</option></select><span></span></label>
+    <label class="control">PDF DPI <select id="pdfDpi"><option value="150">150</option><option value="300" selected>300</option><option value="600">600</option></select><span></span></label>
+    <div class="exportGrid"><button id="exportPng">PNG HD</button><button id="exportPdf" class="primary">PDF HD</button><button id="saveSettings" class="wide ghost">Save settings JSON</button></div>
+    <div id="status" class="status"></div>
+    <div class="tip">PDF export embeds the processed raster at the selected DPI and keeps the image aspect ratio. Very large images are automatically capped to protect browser memory.</div>
+  </fieldset>
+</aside>
+</div>
+
+<nav class="mobileTabs" aria-label="Mobile panels"><button data-panel="left" class="active">Palettes</button><button data-panel="stage">Image</button><button data-panel="right">Controls</button></nav>
+
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script>
+const c=document.querySelector('#c'),ctx=c.getContext('2d',{willReadFrequently:true}),drop=document.querySelector('#drop'),file=document.querySelector('#file');
+let source=null,srcW=0,srcH=0,renderTimer=null,lastObjectUrl=null;
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const B4=[[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]];
+const B8=[[0,32,8,40,2,34,10,42],[48,16,56,24,50,18,58,26],[12,44,4,36,14,46,6,38],[60,28,52,20,62,30,54,22],[3,35,11,43,1,33,9,41],[51,19,59,27,49,17,57,25],[15,47,7,39,13,45,5,37],[63,31,55,23,61,29,53,21]];
+
+const PALETTE_GROUPS={
+  "Vermis-ish":[
+    {name:"Forbidden Woods",colors:['#11150f','#d6ceb1','#2f6940','#9fbc55','#c65142']},
+    {name:"Bone & Ink",colors:['#181814','#e0d8bc','#827b62','#4d4b3d','#b6aa86']},
+    {name:"Red Curse",colors:['#151713','#dbd1b2','#c35443','#5e7440','#76533c']},
+    {name:"Pestilent Mine",colors:['#121710','#c8bd92','#a9b93f','#5c7838','#9d5943']},
+    {name:"Dream Fog",colors:['#20231d','#dcd8c5','#9ba69c','#746e5d','#b7a7a0']},
+    {name:"Cyan Relic",colors:['#101513','#d9d0ae','#3ca6a2','#4b6b4f','#c35b4a']}
+  ],
+  "Risograph":[
+    {name:"Fluo Red / Blue",colors:['#121212','#f7e8c6','#ff4c65','#0078bf','#73559f']},
+    {name:"Sunflower",colors:['#11110e','#fff1b6','#f5c800','#ff6d3a','#4f765d']},
+    {name:"Soy Ink",colors:['#11100d','#e9dfbd','#1f5f4b','#d14a38','#7b6c9d']},
+    {name:"Marine",colors:['#111418','#eee5c8','#156b8a','#74a98f','#d96343']}
+  ],
+  "Retro screen":[
+    {name:"Game Moss",colors:['#15200e','#2f4616','#617528','#a5aa52','#d3d879']},
+    {name:"Amber CRT",colors:['#0a0803','#2b1d05','#7c4d06','#d88b10','#ffd46a']},
+    {name:"Terminal Green",colors:['#041006','#0f3118','#1f6f34','#6ebc55','#c4ff89']},
+    {name:"CGA Fever",colors:['#050509','#f7f7f2','#00aaaa','#aa00aa','#ff5555']}
+  ],
+  "Print shop":[
+    {name:"Newsprint",colors:['#171613','#ece4cf','#9c9482','#59554b','#c84f3f']},
+    {name:"Blueprint",colors:['#071826','#e7e6d9','#1c5373','#4e86a0','#c0d7d8']},
+    {name:"Cheap Comic",colors:['#19130d','#f0d99a','#d74835','#315f73','#d0a929']},
+    {name:"Xerox Heat",colors:['#14110c','#eee1b8','#8d6d25','#c44d2f','#4c4a38']}
+  ],
+  "Acid night":[
+    {name:"Toxic Bloom",colors:['#0d1108','#ece6ba','#a4d72c','#4d832d','#cb3d61']},
+    {name:"Night Orchid",colors:['#100d16','#e9d8b8','#673d7d','#b25476','#365961']},
+    {name:"Sulfur",colors:['#121107','#eee4a9','#d1c72e','#6b812f','#913e2e']},
+    {name:"Cold Rot",colors:['#0b1010','#d5d7bd','#2d7773','#698f6b','#7a4a55']}
+  ],
+  "Gothic Girlcore":[
+    {name:"Black Cherry Bow",colors:['#09070a','#ead9c7','#6f173c','#b94370','#d79aae']},
+    {name:"Bruised Rose",colors:['#100910','#d8c4c9','#3c1c30','#7d3657','#b56f88']},
+    {name:"Dead Doll",colors:['#0b090b','#e8dfd4','#5b4b56','#9a667c','#c8a1ad']},
+    {name:"Funeral Lace",colors:['#080708','#e4d9c9','#30242d','#735164','#b28b98']},
+    {name:"Blood Ribbon",colors:['#080507','#e8d2c5','#561027','#991f48','#d15c7d']},
+    {name:"Wilted Ballet",colors:['#100b10','#ddd0c7','#4b3042','#84586d','#b98d9d']},
+    {name:"Poison Valentine",colors:['#09070a','#d8cfb8','#392032','#8d3158','#a68a4d']},
+    {name:"Victorian Blush",colors:['#0d090c','#e6d6ce','#442632','#875264','#c1909d']}
+  ],
+  "Monochrome":[
+    {name:"Bone",colors:['#171613','#ece4cf','#aaa18d','#655f54','#35332e']},
+    {name:"Sepia",colors:['#16110b','#efdfbd','#b89d73','#73583d','#3c2c20']},
+    {name:"Graphite",colors:['#101010','#ededdf','#abab9d','#66665f','#33332f']},
+    {name:"Yellow Black",colors:['#0b0902','#fff0a6','#e7bf2f','#8e6f0d','#4a3906']}
+  ]
+};
+
+const PRESETS={
+ 'Forbidden Woods':{pal:['#11150f','#d6ceb1','#2f6940','#9fbc55','#c65142'],count:5,algo:'floyd',pixel:2,strength:1.05,bias:0,bright:-4,contrast:30,sat:92,grain:25,fade:9,scan:1,distress:1},
+ 'Bone & Ink':{pal:['#181814','#e0d8bc','#827b62','#4d4b3d','#b6aa86'],count:4,algo:'atkinson',pixel:2,strength:.95,bias:0,bright:3,contrast:20,sat:10,grain:18,fade:15,scan:1,distress:1},
+ 'Red Curse':{pal:['#151713','#dbd1b2','#c35443','#5e7440','#76533c'],count:5,algo:'bayer4',pixel:2,strength:1.25,bias:12,bright:-5,contrast:34,sat:110,grain:26,fade:8,scan:1,distress:1},
+ 'Pestilent Mine':{pal:['#121710','#c8bd92','#a9b93f','#5c7838','#9d5943'],count:5,algo:'bayer8',pixel:2,strength:1.25,bias:-8,bright:-8,contrast:38,sat:118,grain:30,fade:7,scan:1,distress:1},
+ 'Dream Fog':{pal:['#20231d','#dcd8c5','#9ba69c','#746e5d','#b7a7a0'],count:4,algo:'atkinson',pixel:2,strength:.75,bias:0,bright:12,contrast:8,sat:32,grain:33,fade:22,scan:0,distress:1},
+ 'Cyan Relic':{pal:['#101513','#d9d0ae','#3ca6a2','#4b6b4f','#c35b4a'],count:5,algo:'floyd',pixel:2,strength:1.1,bias:-4,bright:-2,contrast:28,sat:105,grain:22,fade:9,scan:1,distress:1},
+ 'Golden Xerox':{pal:['#0b0902','#fff0a6','#e7bf2f','#8e6f0d','#4a3906'],count:5,algo:'atkinson',pixel:2,strength:.9,bias:0,bright:0,contrast:34,sat:65,grain:28,fade:10,scan:1,distress:1},
+ 'Cheap Comic':{pal:['#19130d','#f0d99a','#d74835','#315f73','#d0a929'],count:5,algo:'bayer4',pixel:2,strength:1.15,bias:5,bright:2,contrast:26,sat:118,grain:12,fade:7,scan:0,distress:0},
+ 'Cherry Bow':{pal:['#3b1427','#fff4d6','#ff7eb6','#d81f67','#9d244d'],count:5,algo:'floyd',pixel:2,strength:1.05,bias:7,bright:4,contrast:22,sat:118,grain:12,fade:6,scan:0,distress:0},
+ 'Strawberry Milk':{pal:['#5b233b','#fff8ec','#ffc2d9','#ff8dbd','#d85b8d'],count:5,algo:'atkinson',pixel:2,strength:.92,bias:10,bright:12,contrast:12,sat:96,grain:9,fade:10,scan:0,distress:0},
+ 'Butter Baby':{pal:['#5a2436','#fff8cf','#ffe36e','#ffb7d2','#e8528c'],count:5,algo:'bayer4',pixel:2,strength:1.1,bias:4,bright:8,contrast:18,sat:108,grain:8,fade:5,scan:0,distress:0}
+};
+
+const controls=['pixel','strength','bias','bright','contrast','sat','grain','fade','colorCount'];
+controls.forEach(id=>{const el=$('#'+id),v=$('#'+id+'V');const update=()=>{v.textContent=el.value;queueRender()};el.addEventListener('input',update);update()});
+['algo','scan','distress'].forEach(id=>$('#'+id).addEventListener('change',queueRender));
+$$('.swatch').forEach(s=>s.addEventListener('input',()=>{clearPaletteSelection();queueRender()}));
+
+let activePaletteGroup=Object.keys(PALETTE_GROUPS)[0],activePaletteName='Forbidden Woods';
+function renderPaletteGroups(){const wrap=$('#paletteGroups');wrap.innerHTML='';Object.keys(PALETTE_GROUPS).forEach(name=>{const b=document.createElement('button');b.textContent=name;b.classList.toggle('active',name===activePaletteGroup);b.onclick=()=>{activePaletteGroup=name;renderPaletteGroups();renderPaletteCards()};wrap.appendChild(b)});}
+function renderPaletteCards(){const wrap=$('#paletteGrid');wrap.innerHTML='';PALETTE_GROUPS[activePaletteGroup].forEach(p=>{const b=document.createElement('button');b.className='paletteCard';b.classList.toggle('active',p.name===activePaletteName);const title=document.createElement('span');title.textContent=p.name;b.appendChild(title);const mini=document.createElement('span');mini.className='miniSwatches';p.colors.forEach(col=>{const i=document.createElement('i');i.style.background=col;mini.appendChild(i)});b.appendChild(mini);b.onclick=()=>applyPalette(p.name,p.colors);wrap.appendChild(b)});}
+function applyPalette(name,colors){activePaletteName=name;$$('.swatch').forEach((s,i)=>s.value=colors[i]||colors[colors.length-1]);$('#colorCount').value=Math.min(5,colors.length);$('#colorCount').dispatchEvent(new Event('input'));renderPaletteCards();queueRender()}
+function clearPaletteSelection(){activePaletteName='';renderPaletteCards()}
+renderPaletteGroups();renderPaletteCards();
+
+const pwrap=$('#presets');Object.entries(PRESETS).forEach(([name,p])=>{const b=document.createElement('button');b.className='preset';b.textContent=name;b.onclick=()=>applyPreset(name,b);pwrap.appendChild(b)});
+function applyPreset(name,btn){const p=PRESETS[name];$$('.preset').forEach(x=>x.classList.remove('active'));if(btn)btn.classList.add('active');['pixel','strength','bias','bright','contrast','sat','grain','fade'].forEach(k=>$('#'+k).value=p[k]);$('#algo').value=p.algo;$('#colorCount').value=p.count;$('#scan').checked=!!p.scan;$('#distress').checked=!!p.distress;$$('.swatch').forEach((s,i)=>s.value=p.pal[i]||p.pal[p.pal.length-1]);activePaletteName=name;controls.forEach(id=>$('#'+id).dispatchEvent(new Event('input')));renderPaletteCards();queueRender()}
+applyPreset('Forbidden Woods',$$('.preset')[0]);
+
+function loadImage(f){if(!f)return;const im=new Image();if(lastObjectUrl)URL.revokeObjectURL(lastObjectUrl);lastObjectUrl=URL.createObjectURL(f);im.onload=()=>{source=im;srcW=im.naturalWidth;srcH=im.naturalHeight;drop.style.display='none';$('#sourceInfo').textContent=`${srcW} × ${srcH}px`;fitCanvas();render()};im.onerror=()=>setStatus('Could not read this image.');im.src=lastObjectUrl}
+file.addEventListener('change',e=>loadImage(e.target.files[0]));
+drop.addEventListener('click',()=>file.click());
+['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.style.outline='3px solid #ff4f9a'}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.style.outline='none'}));
+drop.addEventListener('drop',e=>loadImage(e.dataTransfer.files[0]));
+$('#headerOpen').onclick=()=>file.click();
+function fitCanvas(){if(!source)return;const max=Math.min(1200,Math.max(700,window.innerWidth-380));const s=Math.min(1,max/Math.max(srcW,srcH));c.width=Math.max(1,Math.round(srcW*s));c.height=Math.max(1,Math.round(srcH*s));}
+$('#fit').onclick=()=>{fitCanvas();render()};$('#reset').onclick=()=>applyPreset('Forbidden Woods',$$('.preset')[0]);
+function queueRender(){clearTimeout(renderTimer);renderTimer=setTimeout(render,70)}
+function hexRgb(h){return[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]}
+function nearest(r,g,b,pal){let best=pal[0],bd=1e12;for(const p of pal){const dr=r-p[0],dg=g-p[1],db=b-p[2],d=dr*dr+dg*dg+db*db;if(d<bd){bd=d;best=p}}return best}
+function clamp(v){return v<0?0:v>255?255:v}
+function currentSettings(){return{algo:$('#algo').value,pixel:+$('#pixel').value,strength:+$('#strength').value,bias:+$('#bias').value,bright:+$('#bright').value,contrast:+$('#contrast').value,sat:+$('#sat').value,grain:+$('#grain').value,fade:+$('#fade').value,scan:$('#scan').checked,distress:$('#distress').checked,colorCount:+$('#colorCount').value,pal:$$('.swatch').slice(0,+$('#colorCount').value).map(s=>s.value)}}
+function processToCanvas(outW,outH,seed=1337){const settings=currentSettings();const ps=settings.pixel;const w=Math.max(1,Math.floor(outW/ps)),h=Math.max(1,Math.floor(outH/ps));const off=document.createElement('canvas');off.width=w;off.height=h;const o=off.getContext('2d',{willReadFrequently:true});o.imageSmoothingEnabled=true;o.drawImage(source,0,0,w,h);let img=o.getImageData(0,0,w,h),d=img.data;
+  const br=settings.bright*2.1,ct=settings.contrast,cf=(259*(ct+255))/(255*(259-ct)),sat=settings.sat/100,grain=settings.grain,fade=settings.fade/100,bias=settings.bias,distress=settings.distress;
+  let rngState=seed>>>0;const rand=()=>{rngState=(1664525*rngState+1013904223)>>>0;return rngState/4294967296};
+  for(let i=0;i<d.length;i+=4){let r=d[i],g=d[i+1],b=d[i+2],gray=.2126*r+.7152*g+.0722*b;r=gray+(r-gray)*sat;g=gray+(g-gray)*sat;b=gray+(b-gray)*sat;r=cf*(r-128)+128+br;g=cf*(g-128)+128+br;b=cf*(b-128)+128+br;const n=(rand()-.5)*grain;r+=n;g+=n;b+=n;if(distress&&rand()<.015+grain/5000){const kick=rand()<.5?-55:55;r+=kick;g+=kick;b+=kick}d[i]=clamp(r);d[i+1]=clamp(g);d[i+2]=clamp(b)}
+  const pal=settings.pal.map(hexRgb),algo=settings.algo,strength=settings.strength;
+  if(algo==='floyd'||algo==='atkinson'){
+    const err=new Float32Array(w*h*3);const adds=(x,y,er,eg,eb,k)=>{if(x<0||x>=w||y<0||y>=h)return;let q=(y*w+x)*3;err[q]+=er*k;err[q+1]+=eg*k;err[q+2]+=eb*k};
+    for(let y=0;y<h;y++)for(let x=0;x<w;x++){let i=(y*w+x)*4,q=(y*w+x)*3,r=clamp(d[i]+err[q]),g=clamp(d[i+1]+err[q+1]+bias*.18),b=clamp(d[i+2]+err[q+2]-bias*.18),p=nearest(r,g,b,pal),er=(r-p[0])*strength,eg=(g-p[1])*strength,eb=(b-p[2])*strength;d[i]=p[0];d[i+1]=p[1];d[i+2]=p[2];if(algo==='floyd'){adds(x+1,y,er,eg,eb,7/16);adds(x-1,y+1,er,eg,eb,3/16);adds(x,y+1,er,eg,eb,5/16);adds(x+1,y+1,er,eg,eb,1/16)}else{const k=1/8;[[1,0],[2,0],[-1,1],[0,1],[1,1],[0,2]].forEach(([dx,dy])=>adds(x+dx,y+dy,er,eg,eb,k))}}
+  }else{
+    const m=algo==='bayer8'?B8:B4,ms=m.length;for(let y=0;y<h;y++)for(let x=0;x<w;x++){let i=(y*w+x)*4,r=d[i],g=d[i+1],b=d[i+2],offv=0;if(algo!=='threshold'){const t=(m[y%ms][x%ms]+.5)/(ms*ms)-.5;offv=t*150*strength}else offv=bias*.35;const p=nearest(clamp(r+offv),clamp(g+offv+bias*.15),clamp(b+offv-bias*.15),pal);d[i]=p[0];d[i+1]=p[1];d[i+2]=p[2]}
+  }
+  if(fade>0){const paper=pal.find(p=>p[0]+p[1]+p[2]>500)||[220,213,190];for(let i=0;i<d.length;i+=4){d[i]=d[i]*(1-fade)+paper[0]*fade;d[i+1]=d[i+1]*(1-fade)+paper[1]*fade;d[i+2]=d[i+2]*(1-fade)+paper[2]*fade}}
+  o.putImageData(img,0,0);const out=document.createElement('canvas');out.width=outW;out.height=outH;const ox=out.getContext('2d');ox.imageSmoothingEnabled=false;ox.drawImage(off,0,0,outW,outH);if(settings.scan){ox.save();ox.globalAlpha=.11;ox.fillStyle='#000';const step=Math.max(4,Math.round(outH/h*4));for(let y=1;y<outH;y+=step)ox.fillRect(0,y,outW,Math.max(1,Math.round(step/4)));ox.restore()}return out;
+}
+function render(){if(!source)return;const out=processToCanvas(c.width,c.height);ctx.clearRect(0,0,c.width,c.height);ctx.drawImage(out,0,0)}
+
+$('#random').onclick=()=>{const algos=['floyd','atkinson','bayer4','bayer8'];$('#algo').value=algos[Math.floor(Math.random()*algos.length)];$('#pixel').value=1+Math.floor(Math.random()*4);$('#strength').value=(.65+Math.random()*.9).toFixed(2);$('#contrast').value=Math.floor(10+Math.random()*45);$('#grain').value=Math.floor(8+Math.random()*38);controls.forEach(id=>$('#'+id).dispatchEvent(new Event('input')));render()};
+function setStatus(msg){$('#status').textContent=msg}
+function safeExportSize(scale){let w=Math.max(1,Math.round(srcW*scale)),h=Math.max(1,Math.round(srcH*scale));const MAX_DIM=8192,MAX_PIXELS=36000000;let cap=Math.min(1,MAX_DIM/Math.max(w,h),Math.sqrt(MAX_PIXELS/(w*h)));if(cap<1){w=Math.max(1,Math.round(w*cap));h=Math.max(1,Math.round(h*cap));setStatus(`Memory-safe cap: ${w} × ${h}px`)}else setStatus(`Rendering ${w} × ${h}px…`);return{w,h}}
+async function exportHD(kind){if(!source){setStatus('Load an image first.');return}const scale=+$('#exportScale').value,{w,h}=safeExportSize(scale);await new Promise(r=>setTimeout(r,40));const out=processToCanvas(w,h,20260829);if(kind==='png'){const a=document.createElement('a');a.download='GUDithering-ohmygud.png';a.href=out.toDataURL('image/png');a.click();setStatus(`PNG exported · ${w} × ${h}px`);return}
+  if(!window.jspdf||!window.jspdf.jsPDF){setStatus('PDF library unavailable. Check internet connection and retry.');return}const dpi=+$('#pdfDpi').value,mmW=w/dpi*25.4,mmH=h/dpi*25.4,orientation=mmW>=mmH?'landscape':'portrait';const{jsPDF}=window.jspdf;const pdf=new jsPDF({orientation,unit:'mm',format:[mmW,mmH],compress:true,hotfixes:['px_scaling']});const img=out.toDataURL('image/jpeg',.97);pdf.addImage(img,'JPEG',0,0,mmW,mmH,undefined,'FAST');pdf.setProperties({title:'GUDithering export',author:'ohmygud.com',creator:'GUDithering'});pdf.save('GUDithering-ohmygud-HD.pdf');setStatus(`PDF exported · ${w} × ${h}px @ ${dpi} DPI`)}
+$('#exportPng').onclick=()=>exportHD('png');$('#exportPdf').onclick=()=>exportHD('pdf');$('#headerPng').onclick=()=>exportHD('png');$('#headerPdf').onclick=()=>exportHD('pdf');
+$('#saveSettings').onclick=()=>{const data={app:'GUDithering',by:'ohmygud.com',version:'1.0.0',settings:currentSettings()};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='GUDithering-settings.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);setStatus('Settings JSON saved.')};
+
+$$('.mobileTabs button').forEach(b=>b.onclick=()=>{const target=b.dataset.panel;$$('.mobileTabs button').forEach(x=>x.classList.toggle('active',x===b));$('#leftPanel').classList.toggle('mobile-show',target==='left');$('#rightPanel').classList.toggle('mobile-show',target==='right');$('#stage').style.display=target==='stage'?'flex':target==='left'||target==='right'?'none':'flex';if(target==='left'||target==='right')window.scrollTo({top:0,behavior:'smooth'})});
+window.addEventListener('resize',()=>{if(window.innerWidth>760){$('#stage').style.display='flex';$('#leftPanel').classList.add('mobile-show');$('#rightPanel').classList.remove('mobile-show')}});
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='o'){e.preventDefault();file.click()}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();exportHD('png')}});
+</script>
+</body>
+</html>
